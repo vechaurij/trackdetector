@@ -47,31 +47,24 @@ def findImageContours(imageFile):
 
     print("Contours found: " + str(contourNum))
 
-
-    #isContourClosed(contours[0])
-
-    orderedContoursIndexesByArea, orderedContoursAreasByArea = getContoursOrderedByArea(contours)
-    orderedContoursIndexesBySize, orderedContoursAreasBySize = getContoursOrderedBySize(contours)
-    orderedContoursByArea = sorted(contours, key = cv2.contourArea, reverse = True)[1:2]
-
     contoursIndexesAndAreasOrderedByArea = getContoursIndexesAndAreaOrderedByArea(contours)
-
-    # Z = clusterContoursKmeans(contours)
-    # Z = clusterContoursKmeans2(contours)
-    # Z = clusterContoursKmeans3(contours)
-
-    #slopes = getSlopes(orderedContoursAreasByArea)
-
-    contoursIndexesAndAreasOrderedByArea = getContoursIndexesAndAreaOrderedByArea(contours)
+    contoursIndexesAndSizesOrderedBySize = getContoursIndexesAndSizeOrderedBySize(contours)
 
     print("Contours with indexes and areas: " + str(contoursIndexesAndAreasOrderedByArea))
+    print("Contours with indexes and sizes: " + str(contoursIndexesAndSizesOrderedBySize))
     rotor = Rotor()
     rotor.fit_rotate(contoursIndexesAndAreasOrderedByArea[:,1:3])
-    elbow_idx = rotor.get_elbow_index()
-    print("Elbow Index: " + str(elbow_idx))
-    rotor.plot_elbow()
-    cv2.waitKey()
+    elbowIndexAreas = rotor.get_elbow_index()
 
+    rotor.fit_rotate(contoursIndexesAndSizesOrderedBySize[:,1:3])
+    elbowIndexSizes = rotor.get_elbow_index()
+
+    print("Elbow Index for areas: " + str(elbowIndexAreas))
+    print("Elbow Index for sizes: " + str(elbowIndexSizes))
+
+    highestElbow = elbowIndexAreas
+    if (elbowIndexSizes > elbowIndexAreas):
+        highestElbow = elbowIndexSizes
 
     #create an empty image for contours
     imgContours = np.zeros(imgResized.shape)
@@ -82,9 +75,9 @@ def findImageContours(imageFile):
 
     for x in range(contourNum):
         
-        print("Contour: " + str(orderedContoursIndexesByArea[x]) + " " + str(np.shape(contours[orderedContoursIndexesByArea[x]])) + "Area: " + str(cv2.contourArea(contours[orderedContoursIndexesByArea[x]])))
+        print("Contour: " + str(contoursIndexesAndAreasOrderedByArea[x,1]) + " Area: " + str(contoursIndexesAndAreasOrderedByArea[x,2]) + "Size: " + str(contoursIndexesAndSizesOrderedBySize[x,2]))
 
-        if (x > elbow_idx):
+        if (x > highestElbow):
             # draw the contours on the empty image
             cv2.drawContours(imgContours, contours, contoursIndexesAndAreasOrderedByArea[x,1], (0,255,0), 3)
 
