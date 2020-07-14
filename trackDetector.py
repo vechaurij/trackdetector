@@ -39,8 +39,14 @@ def findImageContours(imageFile):
     # Find contours on the thresholded image
     contours, hierarchy = cv2.findContours(imgThresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
 
-    # Remove the largest contour found if it could be the perimeter of the source image
-    contours = removeImagePerimeterContour(imgThresh,contours)
+    print("Hierarchy: " + str(hierarchy))
+    print("Contours hierarchy shape: " + str(np.shape(hierarchy)))
+
+    # Get the index of the largest contour found if it could be the perimeter of the source image
+    perimeterContourIndex = getIndexOfContourClosestToPerimeter(imgThresh,contours)
+    mostOuterContourIndex = getIndexOfMostOuterContour(contours, hierarchy)
+
+    print("Moost Outer Contour Index: " + str(mostOuterContourIndex))
 
     contourNum = np.size(contours)
     print("Contours found: " + str(contourNum))
@@ -68,11 +74,7 @@ def findImageContours(imageFile):
     print("Elbow Index for areas: " + str(elbowIndexAreas))
     print("Elbow Index for sizes: " + str(elbowIndexSizes))
 
-    # The posssible contours candidates to be a track will start on the highest of the sizes or areas found
-    # in order to discard false contours not being tracks but with enough size.
     highestElbow = elbowIndexAreas
-    if (elbowIndexSizes > elbowIndexAreas):
-        highestElbow = elbowIndexSizes
 
     # Create an empty image for drawing the contours
     imgContours = np.zeros(imgResized.shape)
@@ -81,12 +83,15 @@ def findImageContours(imageFile):
     # by sizes and areas of the found contours
     for x in range(contourNum):
         
-        print("Contour: " + str(contoursIndexesAndAreasOrderedByArea[x,2]) + " Area: " + str(contoursIndexesAndAreasOrderedByArea[x,1]) + "Size: " + str(contoursIndexesAndSizesOrderedBySize[x,1]))
+        if (hierarchy[0][x][0] == -1 and hierarchy[0][x][3] == -1):
+            print("-1 and -1 is in: " + str(x) + " - " + str(hierarchy[0][x]))
 
         # Take into account those contours present on the exponential part of the curve defined by sizes or areas of found contours
-        if (x > highestElbow):
+        if (x > highestElbow and contoursIndexesAndAreasOrderedByArea[x,2] != mostOuterContourIndex):
             # Draw the contours on the empty image
             cv2.drawContours(imgContours, contours, contoursIndexesAndAreasOrderedByArea[x,2], (0,255,0), 3)
+
+            print("Contour: " + str(contoursIndexesAndAreasOrderedByArea[x,2]) + " Area: " + str(contoursIndexesAndAreasOrderedByArea[x,1]) + "Size: " + str(contoursIndexesAndSizesOrderedBySize[x,1]) + " Hierarchy: " + str(hierarchy[0][contoursIndexesAndAreasOrderedByArea[x,2]]))
 
             # Display the contour over the empty image
             cv2.imshow("contoursFound",imgContours)

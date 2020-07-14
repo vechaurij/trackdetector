@@ -85,3 +85,30 @@ def removeImagePerimeterContour(img, contours, percentArea = 0.8):
         return np.delete(contours,i)
     else:
         return contours
+
+def getIndexOfContourClosestToPerimeter(img, contours, percentArea = 0.8):
+
+    height,width = img.shape
+
+    contourNum = np.size(contours)
+    contourFound = False
+    imageArea = height * width
+
+    for i in range(contourNum):
+        if ((cv2.contourArea(contours[i]) / imageArea) > percentArea):
+            contourFound = True
+            break
+
+    if contourFound:
+        return i
+    else:
+        return -1
+
+def getIndexOfMostOuterContour(contours, hierarchy):
+
+    contourNum = np.size(contours)
+
+    for i in range(contourNum):
+        if (hierarchy[0][i][0] == -1 and hierarchy[0][i][3] == -1):
+            return i
+    return -1
