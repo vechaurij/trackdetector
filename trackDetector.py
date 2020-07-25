@@ -22,7 +22,7 @@ def findImageContours(imageFile):
     imgGrey = cv2.cvtColor(imgResized,cv2.COLOR_BGR2GRAY)
 
     # Set the kernel size for image blur
-    ksize = (5, 5) 
+    ksize = (8, 8) 
 
     # Blur the image with the definez kernel size
     imgBlur = cv2.blur(imgGrey,ksize)
@@ -113,7 +113,7 @@ def findImageContours(imageFile):
 
 
     for i in range(candidateTrackContoursNum):
-        candidateContoursPoly[i] = cv2.approxPolyDP(contours[candidateTrackContours[i]], 3, True)
+        candidateContoursPoly[i] = cv2.approxPolyDP(contours[candidateTrackContours[i]], 5, True)
         candidateContours[i] = contours[candidateTrackContours[i]]
         boundRect[i] = cv2.boundingRect(candidateContoursPoly[i])
         centers[i], radius[i] = cv2.minEnclosingCircle(candidateContoursPoly[i])
@@ -125,7 +125,7 @@ def findImageContours(imageFile):
         #cv2.drawContours(imgContours, contours_poly, i, (255,255,0))
         #cv2.rectangle(imgContours, (int(boundRect[i][0]), int(boundRect[i][1])), \
         #  (int(boundRect[i][0]+boundRect[i][2]), int(boundRect[i][1]+boundRect[i][3])), (160,170,0), 2)
-        #cv2.circle(imgContours, (int(centers[i][0]), int(centers[i][1])), int(radius[i]), (14,100,244), 2)
+        cv2.circle(imgContours, (int(centers[i][0]), int(centers[i][1])), int(radius[i]), (14,100,244), 2)
 
         print("Center: " + str(i) + " " + str(centers[i]))
         print("Radius: " + str(i) + " " + str(radius[i]))
@@ -137,10 +137,10 @@ def findImageContours(imageFile):
     print("Min radius: " + str(min(radius)) + " Index: " + str(radius.argmin()))
     print("Max radius: " + str(max(radius)) + " Index: " + str(radius.argmax()))
 
-    # cv2.drawContours(imgContours, contours_poly, radius.argmin(), (255,255,0))
-    # cv2.drawContours(imgContours, contours_poly, radius.argmax(), (255,255,0))
-    cv2.drawContours(imgContours, candidateContours, radius.argmin(), (0,255,0), 2)
-    cv2.drawContours(imgContours, candidateContours, radius.argmax(), (0,255,0), 2)
+    cv2.drawContours(imgContours, candidateContoursPoly, radius.argmin(), (255,255,0))
+    cv2.drawContours(imgContours, candidateContoursPoly, radius.argmax(), (0,255,0))
+    #cv2.drawContours(imgContours, candidateContours, radius.argmin(), (255,255,0), 2)
+    #cv2.drawContours(imgContours, candidateContours, radius.argmax(), (0,255,0), 2)
 
     cv2.imshow("contoursFound",imgContours)
     cv2.waitKey()
