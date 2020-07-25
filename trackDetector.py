@@ -69,10 +69,10 @@ def findImageContours(imageFile):
         if (x > elbowIndexAreas and contoursIndexesAndAreasOrderedByArea[x,2] != mostOuterContourIndex):
             candidateTrackContours.append(contoursIndexesAndAreasOrderedByArea[x,2])
 
-    idxInner, idxOuter = getInnerAndOuterContours(contours, candidateTrackContours)
+    idxInnerTrackContour, idxOuterTrackContour = getInnerAndOuterContours(contours, candidateTrackContours)
 
-    cv2.drawContours(imgContours, contours, candidateTrackContours[idxInner], (255,255,0), 2)
-    cv2.drawContours(imgContours, contours, candidateTrackContours[idxOuter], (0,255,0), 2)
+    cv2.drawContours(imgContours, contours, candidateTrackContours[idxInnerTrackContour], (255,255,0), 2)
+    cv2.drawContours(imgContours, contours, candidateTrackContours[idxOuterTrackContour], (0,255,0), 2)
 
     cv2.imshow("contoursFound",imgContours)
     cv2.waitKey()
