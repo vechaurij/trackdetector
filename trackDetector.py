@@ -100,51 +100,16 @@ def findImageContours(imageFile):
             # Display the contour over the empty image
             #cv2.imshow("contoursFound",imgContours)
             #cv2.waitKey()
-    
-    candidateTrackContoursNum = len(candidateTrackContours)
 
-    candidateContoursPoly = [None]*candidateTrackContoursNum
-    candidateContours = [None]*candidateTrackContoursNum
-    boundRect = [None]*candidateTrackContoursNum
-    centers = [None]*candidateTrackContoursNum
-    # radius = [None]*candidateTrackContoursNum
-    radius = np.empty(candidateTrackContoursNum,dtype='f')
+    idxInner, idxOuter = getInnerAndOuterContours(contours, candidateTrackContours)
 
-
-
-    for i in range(candidateTrackContoursNum):
-        candidateContoursPoly[i] = cv2.approxPolyDP(contours[candidateTrackContours[i]], 5, True)
-        candidateContours[i] = contours[candidateTrackContours[i]]
-        boundRect[i] = cv2.boundingRect(candidateContoursPoly[i])
-        centers[i], radius[i] = cv2.minEnclosingCircle(candidateContoursPoly[i])
-
-    print("Bounding boxes centers: ")
-
-    for i in range(candidateTrackContoursNum):
-
-        #cv2.drawContours(imgContours, contours_poly, i, (255,255,0))
-        #cv2.rectangle(imgContours, (int(boundRect[i][0]), int(boundRect[i][1])), \
-        #  (int(boundRect[i][0]+boundRect[i][2]), int(boundRect[i][1]+boundRect[i][3])), (160,170,0), 2)
-        cv2.circle(imgContours, (int(centers[i][0]), int(centers[i][1])), int(radius[i]), (14,100,244), 2)
-
-        print("Center: " + str(i) + " " + str(centers[i]))
-        print("Radius: " + str(i) + " " + str(radius[i]))
-
-        # Display the contour over the empty image
-        #cv2.imshow("contoursFound",imgContours)
-        #cv2.waitKey()
-
-    print("Min radius: " + str(min(radius)) + " Index: " + str(radius.argmin()))
-    print("Max radius: " + str(max(radius)) + " Index: " + str(radius.argmax()))
-
-    cv2.drawContours(imgContours, candidateContoursPoly, radius.argmin(), (255,255,0))
-    cv2.drawContours(imgContours, candidateContoursPoly, radius.argmax(), (0,255,0))
-    #cv2.drawContours(imgContours, candidateContours, radius.argmin(), (255,255,0), 2)
-    #cv2.drawContours(imgContours, candidateContours, radius.argmax(), (0,255,0), 2)
+    #cv2.drawContours(imgContours, candidateContoursPoly, idxInner, (255,255,0))
+    #cv2.drawContours(imgContours, candidateContoursPoly, idxOuter, (0,255,0))
+    cv2.drawContours(imgContours, contours, candidateTrackContours[idxInner], (255,255,0), 2)
+    cv2.drawContours(imgContours, contours, candidateTrackContours[idxOuter], (0,255,0), 2)
 
     cv2.imshow("contoursFound",imgContours)
     cv2.waitKey()
-
 
 # Parse argumetns from command line
 ap = argparse.ArgumentParser()

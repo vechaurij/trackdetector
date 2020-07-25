@@ -112,3 +112,48 @@ def getIndexOfMostOuterContour(contours, hierarchy):
         if (hierarchy[0][i][0] == -1 and hierarchy[0][i][3] == -1):
             return i
     return -1
+
+def getInnerAndOuterContours(contours, candidateTrackContours):
+    """Given a set of candidate contours to be part of a track, 
+        returns the inner and outer contours.
+        The candidate contours to be part of a track are identified by
+        the array candidateTrackContours, that contain the indexes of the candidate
+        contours on the contours parameter.
+        All candidate contours must be more or less concentric, as the function
+        will return as inner contour, the contour with the smallest radius and as
+        the outer contour the contour with the largest radius.
+        ----------
+        contours : ndarray
+            Array of contours returned by the function cv2.findContours candidates
+            to match a track, whre to find the inner and outer shape of the track.
+
+        candidateTrackContours : ndarray
+            Array of the indexes of contours candidates to be part of a track.
+
+        Returns
+        -------
+            idxInner : int
+                Integer with the index of the inner contour found on candidateTrackContours
+            
+            idxOuter : int
+                Integer with the index of the outer contour found on candidateTrackContours
+
+        Raises
+        ------
+        Nothing.
+    """
+    candidateTrackContoursNum = len(candidateTrackContours)
+
+    centers = [None]*candidateTrackContoursNum
+    radius = np.empty(candidateTrackContoursNum,dtype='f')
+
+    for i in range(candidateTrackContoursNum):
+        centers[i], radius[i] = cv2.minEnclosingCircle(contours[candidateTrackContours[i]])
+
+    idxInner = radius.argmin()
+    idxOuter = radius.argmax()
+
+    print("Min radius: " + str(min(radius)) + " Index: " + str(idxInner))
+    print("Max radius: " + str(max(radius)) + " Index: " + str(idxOuter))
+
+    return idxInner.item(), idxOuter.item()
