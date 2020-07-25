@@ -28,6 +28,11 @@ def getContoursIndexesOrderedByFeature(contours, contourFeature = ContourOrderFe
             ContourOrderFeature.SIZE: The size of the contour measured in pixels. The "method" parameter of the 
                 cv2.findContours function must be set to cv2.CHAIN_APPROX_NONE in order to get all the points of the contour
 
+        Returns
+        -------
+            ndarray : Array containing the indexes of contours passed on the contours parameter
+                ordered by it's area or perimeter depending on the contourFeature parameter value
+
         Raises
         ------
         Nothing.
@@ -64,7 +69,12 @@ def removeImagePerimeterContour(img, contours, percentArea = 0.8):
             Array returned by the function cv2.findContours containing all contours found on an image
         percentArea : float
             Percentage of area of the source img to determine the contour to remove if it's larger. By default 80% (Or 0.8)
-            
+
+        Returns
+        -------
+            list : List of contours on input contours parameter without the contour with an area
+                bigger that percetArea paramter of the img image passed as parameter
+
         Raises
         ------
         Nothing.
@@ -153,7 +163,7 @@ def getInnerAndOuterContours(contours, candidateTrackContours):
     idxInner = radius.argmin()
     idxOuter = radius.argmax()
 
-    print("Min radius: " + str(min(radius)) + " Index: " + str(idxInner))
-    print("Max radius: " + str(max(radius)) + " Index: " + str(idxOuter))
+    # Indexes are returned using the .item() method as idxInner and idxOuter are np.int64 type
+    # and int should be returned instead of np.int64
 
     return idxInner.item(), idxOuter.item()
