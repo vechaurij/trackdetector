@@ -79,6 +79,8 @@ def findImageContours(imageFile):
     # Create an empty image for drawing the contours
     imgContours = np.zeros(imgResized.shape)
 
+    candidateTrackContours = []
+
     # Interate over all contours found but only draw those contours on the exponential grow part of the curves defined
     # by sizes and areas of the found contours
     for x in range(contourNum):
@@ -89,13 +91,59 @@ def findImageContours(imageFile):
         # Take into account those contours present on the exponential part of the curve defined by sizes or areas of found contours
         if (x > highestElbow and contoursIndexesAndAreasOrderedByArea[x,2] != mostOuterContourIndex):
             # Draw the contours on the empty image
-            cv2.drawContours(imgContours, contours, contoursIndexesAndAreasOrderedByArea[x,2], (0,255,0), 3)
+            #cv2.drawContours(imgContours, contours, contoursIndexesAndAreasOrderedByArea[x,2], (0,255,0), 3)
 
             print("Contour: " + str(contoursIndexesAndAreasOrderedByArea[x,2]) + " Area: " + str(contoursIndexesAndAreasOrderedByArea[x,1]) + "Size: " + str(contoursIndexesAndSizesOrderedBySize[x,1]) + " Hierarchy: " + str(hierarchy[0][contoursIndexesAndAreasOrderedByArea[x,2]]))
 
+            candidateTrackContours.append(contoursIndexesAndAreasOrderedByArea[x,2])
+
             # Display the contour over the empty image
-            cv2.imshow("contoursFound",imgContours)
-            cv2.waitKey()
+            #cv2.imshow("contoursFound",imgContours)
+            #cv2.waitKey()
+    
+    candidateTrackContoursNum = len(candidateTrackContours)
+
+    candidateContoursPoly = [None]*candidateTrackContoursNum
+    candidateContours = [None]*candidateTrackContoursNum
+    boundRect = [None]*candidateTrackContoursNum
+    centers = [None]*candidateTrackContoursNum
+    # radius = [None]*candidateTrackContoursNum
+    radius = np.empty(candidateTrackContoursNum,dtype='f')
+
+
+
+    for i in range(candidateTrackContoursNum):
+        candidateContoursPoly[i] = cv2.approxPolyDP(contours[candidateTrackContours[i]], 3, True)
+        candidateContours[i] = contours[candidateTrackContours[i]]
+        boundRect[i] = cv2.boundingRect(candidateContoursPoly[i])
+        centers[i], radius[i] = cv2.minEnclosingCircle(candidateContoursPoly[i])
+
+    print("Bounding boxes centers: ")
+
+    for i in range(candidateTrackContoursNum):
+
+        #cv2.drawContours(imgContours, contours_poly, i, (255,255,0))
+        #cv2.rectangle(imgContours, (int(boundRect[i][0]), int(boundRect[i][1])), \
+        #  (int(boundRect[i][0]+boundRect[i][2]), int(boundRect[i][1]+boundRect[i][3])), (160,170,0), 2)
+        #cv2.circle(imgContours, (int(centers[i][0]), int(centers[i][1])), int(radius[i]), (14,100,244), 2)
+
+        print("Center: " + str(i) + " " + str(centers[i]))
+        print("Radius: " + str(i) + " " + str(radius[i]))
+
+        # Display the contour over the empty image
+        #cv2.imshow("contoursFound",imgContours)
+        #cv2.waitKey()
+
+    print("Min radius: " + str(min(radius)) + " Index: " + str(radius.argmin()))
+    print("Max radius: " + str(max(radius)) + " Index: " + str(radius.argmax()))
+
+    # cv2.drawContours(imgContours, contours_poly, radius.argmin(), (255,255,0))
+    # cv2.drawContours(imgContours, contours_poly, radius.argmax(), (255,255,0))
+    cv2.drawContours(imgContours, candidateContours, radius.argmin(), (0,255,0), 2)
+    cv2.drawContours(imgContours, candidateContours, radius.argmax(), (0,255,0), 2)
+
+    cv2.imshow("contoursFound",imgContours)
+    cv2.waitKey()
 
 
 # Parse argumetns from command line
