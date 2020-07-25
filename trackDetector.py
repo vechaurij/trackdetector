@@ -33,8 +33,8 @@ def findImageContours(imageFile):
     # Get threshold input image
     ret,imgThresh = cv2.threshold(imgBlur, thresh, 255, cv2.THRESH_BINARY)
 
-    cv2.imshow("Threshold",imgThresh)
-    cv2.waitKey()
+    #cv2.imshow("Threshold",imgThresh)
+    #cv2.waitKey()
 
     # Find contours on the thresholded image
     contours, hierarchy = cv2.findContours(imgThresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
@@ -77,17 +77,12 @@ def findImageContours(imageFile):
     outerContour = contours[candidateTrackContours[idxOuterTrackContour]]
     innerContour = contours[candidateTrackContours[idxInnerTrackContour]]
 
-    convexhull = cv2.convexHull(outerContour, returnPoints = False)
-    defects = cv2.convexityDefects(outerContour, convexhull)
-    print(str(defects))
-    for i in range(defects.shape[0]):
-        s,e,f,d = defects[i,0]
-        start = tuple(outerContour[s][0])
-        end = tuple(outerContour[e][0])
-        far = tuple(outerContour[f][0])
-        #cv2.line(imgContours,start,end,[0,255,0],2)
-        cv2.circle(imgContours,far,5,[0,0,255],-1)
-
+    enclosedRectangle = cv2.minAreaRect(outerContour)
+    box = cv2.boxPoints(enclosedRectangle) # cv2.boxPoints(rect) for OpenCV 3.x
+    box = np.int0(box)
+    
+    cv2.drawContours(imgContours,[box],0,(0,0,255),2)
+    cv2.drawContours(imgContours,contours,candidateTrackContours[idxOuterTrackContour],(255,0,255),2)
     cv2.imshow("contoursFound",imgContours)
     cv2.waitKey()
 

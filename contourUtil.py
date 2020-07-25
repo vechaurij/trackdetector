@@ -167,3 +167,11 @@ def getInnerAndOuterContours(contours, candidateTrackContours):
     # and int should be returned instead of np.int64
 
     return idxInner.item(), idxOuter.item()
+
+def drawAContourPointByPoint(img, contour):
+
+    for pointIndex in range(contour.shape[0]):
+        tuple = (contour[pointIndex][0][0],contour[pointIndex][0][1])
+        cv2.circle(img,tuple,1,(124,255.0),1)
+
+    return img
