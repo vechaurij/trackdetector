@@ -71,8 +71,22 @@ def findImageContours(imageFile):
 
     idxInnerTrackContour, idxOuterTrackContour = getInnerAndOuterContours(contours, candidateTrackContours)
 
-    cv2.drawContours(imgContours, contours, candidateTrackContours[idxInnerTrackContour], (255,255,0), 2)
-    cv2.drawContours(imgContours, contours, candidateTrackContours[idxOuterTrackContour], (0,255,0), 2)
+    # cv2.drawContours(imgContours, contours, candidateTrackContours[idxInnerTrackContour], (255,255,0), 2)
+    # cv2.drawContours(imgContours, contours, candidateTrackContours[idxOuterTrackContour], (0,255,0), 2)
+
+    outerContour = contours[candidateTrackContours[idxOuterTrackContour]]
+    innerContour = contours[candidateTrackContours[idxInnerTrackContour]]
+
+    convexhull = cv2.convexHull(outerContour, returnPoints = False)
+    defects = cv2.convexityDefects(outerContour, convexhull)
+    print(str(defects))
+    for i in range(defects.shape[0]):
+        s,e,f,d = defects[i,0]
+        start = tuple(outerContour[s][0])
+        end = tuple(outerContour[e][0])
+        far = tuple(outerContour[f][0])
+        #cv2.line(imgContours,start,end,[0,255,0],2)
+        cv2.circle(imgContours,far,5,[0,0,255],-1)
 
     cv2.imshow("contoursFound",imgContours)
     cv2.waitKey()
